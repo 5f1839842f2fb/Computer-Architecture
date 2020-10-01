@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 
 """Main."""
 
@@ -7,5 +8,9 @@ from cpu import *
 
 cpu = CPU()
 
-cpu.load()
+if len(sys.argv) != 2:
+    print("Exactly one additional argument please")
+    sys.exit()
+
+cpu.load(sys.argv[1])
 cpu.run()

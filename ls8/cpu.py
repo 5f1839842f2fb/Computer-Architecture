@@ -13,27 +13,27 @@ class CPU:
         self.FL = [0] * 3 # 8 bits but we only have 3 flags so this is to save future typing and confusion
         pass
 
-    def load(self):
+    def load(self, file):
         """Load a program into memory."""
 
+        program = []
         address = 0
+        contents = None
 
-        # For now, we've just hardcoded a program:
-
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
+        with open(file) as f:
+            contents = f.read()
+        contents = contents.splitlines()
+        for line in contents:
+            if len(line) == 0:
+                pass
+            elif line[0] != "#":
+                trimmed = line[:8] # saves the first 8 characters of the line
+                program += [trimmed]
+        # print(program)
         for instruction in program:
-            self.memory[address] = instruction
+            self.memory[address] = int(instruction, 2)
             address += 1
-
+        print(self.memory)
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
