@@ -7,6 +7,10 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
+        self.r = [0] * 8
+        self.memory = [0] * 256
+        self.PC = 0
+        self.FL = [0] * 3 # 8 bits but we only have 3 flags so this is to save future typing and confusion
         pass
 
     def load(self):
@@ -27,7 +31,7 @@ class CPU:
         ]
 
         for instruction in program:
-            self.ram[address] = instruction
+            self.memory[address] = instruction
             address += 1
 
 
@@ -35,7 +39,7 @@ class CPU:
         """ALU operations."""
 
         if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
+            self.r[reg_a] += self.r[reg_b]
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -60,6 +64,30 @@ class CPU:
 
         print()
 
+    def ram_read(self, MAR):
+        return self.memory[MAR]
+    
+    def ram_write(self, MAR, MDR):
+        self.memory[MAR] = MDR
+
     def run(self):
         """Run the CPU."""
-        pass
+        running = True
+        IR = None
+        # print(self.memory)
+        
+        while running:
+            IR = self.memory[self.PC]
+            if IR == 0b10000010: # LDI
+                self.PC += 1
+                register = self.memory[self.PC]
+                self.PC += 1
+                self.r[register] = self.memory[self.PC]
+                self.PC += 1
+            elif IR == 0b01000111: # PRN
+                self.PC += 1
+                register = self.memory[self.PC]
+                print(self.r[register])
+                self.PC += 1
+            elif IR == 0b00000001: # HLT
+                sys.exit()
