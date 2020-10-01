@@ -33,13 +33,15 @@ class CPU:
         for instruction in program:
             self.memory[address] = int(instruction, 2)
             address += 1
-        print(self.memory)
+        # print(self.memory)
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
         if op == "ADD":
             self.r[reg_a] += self.r[reg_b]
+        elif op == "MUL":
+            self.r[reg_a] *= self.r[reg_b]
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -91,3 +93,10 @@ class CPU:
                 self.PC += 1
             elif IR == 0b00000001: # HLT
                 sys.exit()
+            elif IR == 0b10100010: # MUL
+                self.PC += 1
+                registerA = self.memory[self.PC]
+                self.PC += 1
+                registerB = self.memory[self.PC]
+                self.alu("MUL", registerA, registerB)
+                self.PC += 1
