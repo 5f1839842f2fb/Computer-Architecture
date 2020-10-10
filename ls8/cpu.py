@@ -11,7 +11,7 @@ class CPU:
         self.r[7] = 0xF4 # stack pointer, starts at index 244 in memory
         self.memory = [0] * 256
         self.PC = 0
-        self.FL = [0] * 3 # 8 bits but we only have 3 flags so this is to save future typing and confusion
+        self.FL = [0] * 8
         self.instructions = {}
         self.instructions[0b10000010] = self.LDI
         self.instructions[0b01000111] = self.PRN
@@ -22,6 +22,10 @@ class CPU:
         self.instructions[0b01000110] = self.POP
         self.instructions[0b01010000] = self.CALL
         self.instructions[0b00010001] = self.RET
+        self.instructions[0b10100111] = self.CMP
+        self.instructions[0b01010100] = self.JMP
+        self.instructions[0b01010110] = self.JNE
+        self.instructions[0b01010101] = self.JEQ
 
     def load(self, file):
         """Load a program into memory."""
@@ -151,6 +155,43 @@ class CPU:
         self.alu("ADD", registerA, registerB)
         self.PC += 1
 
+    def CMP(self): # im assuming when this is called, any bit not explicitly set is cleared
+        self.PC += 1
+        registerA = self.memory[self.PC]
+        self.PC += 1
+        registerB = self.memory[self.PC]
+        self.FL = [0] * 8
+        if self.r[registerA] < self.r[registerB]:
+            self.FL[-3] = 1
+        elif self.r[registerA] > self.r[registerB]:
+            self.FL[-2] = 1
+        elif self.r[registerA] == self.r[registerB]:
+            self.FL[-1] = 1
+        self.PC += 1
+        #print(self.r[registerA], self.r[registerB])
+        #print(self.FL)
+
+    def JMP(self):
+        self.PC += 1
+        register = self.memory[self.PC]
+        self.PC = self.r[register]
+
+    def JNE(self):
+        self.PC += 1
+        register = self.memory[self.PC]
+        if self.FL[-1] == False:
+            self.PC = self.r[register]
+        else:
+            self.PC += 1
+
+    def JEQ(self):
+        self.PC += 1
+        register = self.memory[self.PC]
+        if self.FL[-1] == True:
+            self.PC = self.r[register]
+        else:
+            self.PC += 1
+        
     def run(self):
         """Run the CPU."""
         running = True
@@ -160,4 +201,5 @@ class CPU:
         while running:
             IR = self.memory[self.PC]
             #print(IR)
+            #print("PC: ", self.PC)
             self.instructions[IR]()
