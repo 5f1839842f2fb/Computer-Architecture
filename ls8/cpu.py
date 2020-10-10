@@ -26,7 +26,14 @@ class CPU:
         self.instructions[0b01010100] = self.JMP
         self.instructions[0b01010110] = self.JNE
         self.instructions[0b01010101] = self.JEQ
-
+        self.instructions[0b10101000] = self.AND
+        self.instructions[0b10101010] = self.OR
+        self.instructions[0b10101011] = self.XOR
+        self.instructions[0b01101001] = self.NOT
+        self.instructions[0b10101100] = self.SHL
+        self.instructions[0b10101101] = self.SHR
+        self.instructions[0b10100100] = self.MOD
+        
     def load(self, file):
         """Load a program into memory."""
 
@@ -50,13 +57,28 @@ class CPU:
         #print(self.memory)
 
     
-    def alu(self, op, reg_a, reg_b):
+    def alu(self, op, reg_a, reg_b = 0): # for AND, OR, XOR, NOT etc idk if this is right, there's no tests provided
         """ALU operations."""
 
         if op == "ADD":
             self.r[reg_a] += self.r[reg_b]
         elif op == "MUL":
             self.r[reg_a] *= self.r[reg_b]
+        elif op == "AND":
+            self.r[reg_a] &= self.r[reg_b]
+        elif op == "OR":
+            self.r[reg_a] |= self.r[reg_b]
+        elif op == "XOR":
+            self.r[reg_a] ^= self.r[reg_b]
+        elif op == "NOT":
+            self.r[reg_a] = ~self.r[reg_a]
+        elif op == "SHL":
+            self.r[reg_a] <<= self.r[reg_b]
+        elif op == "SHR":
+            self.r[reg_a] >>= self.r[reg_b]
+        elif op == "MOD":
+            self.r[reg_a] %= self.r[reg_b]
+
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -191,7 +213,69 @@ class CPU:
             self.PC = self.r[register]
         else:
             self.PC += 1
-        
+    
+    def AND(self):
+        self.PC += 1
+        registerA = self.memory[self.PC]
+        self.PC += 1
+        registerB = self.memory[self.PC]
+        self.alu("AND", registerA, registerB)
+        self.PC += 1
+
+    def OR(self):
+        self.PC += 1
+        registerA = self.memory[self.PC]
+        self.PC += 1
+        registerB = self.memory[self.PC]
+        self.alu("OR", registerA, registerB)
+        self.PC += 1
+
+    def XOR(self):
+        self.PC += 1
+        registerA = self.memory[self.PC]
+        self.PC += 1
+        registerB = self.memory[self.PC]
+        self.alu("XOR", registerA, registerB)
+        self.PC += 1
+
+    def NOT(self):
+        self.PC += 1
+        registerA = self.memory[self.PC]
+        self.alu("NOT", registerA)
+        self.PC += 1
+
+    def SHL(self):
+        self.PC += 1
+        registerA = self.memory[self.PC]
+        self.PC += 1
+        registerB = self.memory[self.PC]
+        self.alu("SHL", registerA, registerB)
+        self.PC += 1
+
+    def SHR(self):
+        self.PC += 1
+        registerA = self.memory[self.PC]
+        self.PC += 1
+        registerB = self.memory[self.PC]
+        self.alu("SHR", registerA, registerB)
+        self.PC += 1
+
+    def MOD(self):
+        self.PC += 1
+        registerA = self.memory[self.PC]
+        self.PC += 1
+        registerB = self.memory[self.PC]
+        self.alu("MOD", registerA, registerB)
+        self.PC += 1
+
+    def ADDI(self):
+        self.PC += 1
+        register = self.memory[self.PC]
+        self.PC += 1
+        value = self.memory[self.PC]
+        self.r[register] += value
+        self.PC += 1
+
     def run(self):
         """Run the CPU."""
         running = True
