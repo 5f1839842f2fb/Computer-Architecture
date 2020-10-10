@@ -33,6 +33,7 @@ class CPU:
         self.instructions[0b10101100] = self.SHL
         self.instructions[0b10101101] = self.SHR
         self.instructions[0b10100100] = self.MOD
+        self.instructions[0b10100110] = self.ADDI # chose the binary opcode value myself, might conflict with unimplemented instructions
         
     def load(self, file):
         """Load a program into memory."""
@@ -268,7 +269,7 @@ class CPU:
         self.alu("MOD", registerA, registerB)
         self.PC += 1
 
-    def ADDI(self):
+    def ADDI(self): # should use the ALU according to MIPS spec but ALU is set up to only accept registers as arguments
         self.PC += 1
         register = self.memory[self.PC]
         self.PC += 1
